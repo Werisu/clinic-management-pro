@@ -9,7 +9,8 @@ import {
   Settings, 
   BarChart3,
   Stethoscope,
-  Home
+  Home,
+  LogOut
 } from "lucide-react";
 import {
   Sidebar,
@@ -24,6 +25,8 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
 
 const menuItems = [
   {
@@ -70,6 +73,11 @@ const menuItems = [
 
 export function AppSidebar() {
   const location = useLocation();
+  const { signOut, profile } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   return (
     <Sidebar className="border-r border-border/40 bg-sidebar">
@@ -83,6 +91,12 @@ export function AppSidebar() {
             <p className="text-sm text-muted-foreground">Sistema Veterinário</p>
           </div>
         </div>
+        {profile && (
+          <div className="mt-4 text-sm">
+            <p className="font-medium text-foreground">{profile.full_name || profile.email}</p>
+            <p className="text-xs text-muted-foreground capitalize">{profile.role}</p>
+          </div>
+        )}
       </SidebarHeader>
       
       <SidebarContent className="p-4">
@@ -130,7 +144,16 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-border/40 p-4">
-        <div className="text-xs text-muted-foreground text-center">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={handleSignOut}
+          className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground"
+        >
+          <LogOut className="h-4 w-4" />
+          Sair
+        </Button>
+        <div className="text-xs text-muted-foreground text-center mt-2">
           VetCare v1.0 © 2024
         </div>
       </SidebarFooter>
