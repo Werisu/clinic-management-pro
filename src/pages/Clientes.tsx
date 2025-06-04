@@ -1,9 +1,7 @@
 
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Plus, Users } from "lucide-react";
+import { ClientesList } from "@/components/ClientesList";
 
 const Clientes = () => {
   return (
@@ -21,33 +19,10 @@ const Clientes = () => {
                 </p>
               </div>
             </div>
-            <Button className="vet-gradient text-white">
-              <Plus className="h-4 w-4 mr-2" />
-              Novo Cliente
-            </Button>
           </header>
 
           <div className="flex-1 p-6 animate-fade-in">
-            <Card className="vet-card-shadow">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5 text-vet-primary" />
-                  Gestão de Clientes
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-center py-12">
-                <div className="space-y-4">
-                  <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center">
-                    <Users className="h-12 w-12 text-muted-foreground" />
-                  </div>
-                  <h3 className="text-xl font-semibold">Em Desenvolvimento</h3>
-                  <p className="text-muted-foreground max-w-md mx-auto">
-                    O módulo de clientes incluirá cadastro completo, histórico, 
-                    informações de contato e associação com pets.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+            <ClientesList />
           </div>
         </main>
       </div>

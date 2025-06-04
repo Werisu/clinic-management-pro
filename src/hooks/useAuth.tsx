@@ -46,8 +46,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             
             if (error) {
               console.error('Error fetching profile:', error);
-            } else {
-              setProfile(profileData);
+            } else if (profileData) {
+              setProfile({
+                id: profileData.id,
+                email: profileData.email,
+                full_name: profileData.full_name,
+                role: profileData.role as 'admin' | 'user'
+              });
             }
             setLoading(false);
           }, 0);
@@ -72,8 +77,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .then(({ data: profileData, error }) => {
             if (error) {
               console.error('Error fetching profile:', error);
-            } else {
-              setProfile(profileData);
+            } else if (profileData) {
+              setProfile({
+                id: profileData.id,
+                email: profileData.email,
+                full_name: profileData.full_name,
+                role: profileData.role as 'admin' | 'user'
+              });
             }
             setLoading(false);
           });
