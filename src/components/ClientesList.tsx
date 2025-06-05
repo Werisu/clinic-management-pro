@@ -3,9 +3,11 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Edit, Trash, User } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { ClienteForm } from './ClienteForm';
 
 interface Cliente {
   id: string;
@@ -21,6 +23,7 @@ export function ClientesList() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [dialogOpen, setDialogOpen] = useState(false);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -45,6 +48,11 @@ export function ClientesList() {
     }
   };
 
+  const handleSuccess = () => {
+    setDialogOpen(false);
+    fetchClientes();
+  };
+
   const filteredClientes = clientes.filter(cliente =>
     cliente.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
     cliente.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -67,10 +75,18 @@ export function ClientesList() {
             <User className="h-5 w-5 text-vet-primary" />
             Clientes
           </div>
-          <Button className="vet-gradient text-white">
-            <Plus className="h-4 w-4 mr-2" />
-            Novo Cliente
-          </Button>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="vet-gradient text-white">
+                <Plus className="h-4 w-4 mr-2" />
+                Novo Cliente
+              </Button>
+            </DialogTrigger>
+            <ClienteForm 
+              onSuccess={handleSuccess}
+              onCancel={() => setDialogOpen(false)}
+            />
+          </Dialog>
         </CardTitle>
         <div className="mt-4">
           <Input
@@ -100,6 +116,9 @@ export function ClientesList() {
                     <p className="text-muted-foreground">{cliente.email}</p>
                     <p className="text-sm text-muted-foreground">{cliente.telefone}</p>
                     <p className="text-sm text-muted-foreground">CPF: {cliente.cpf}</p>
+                    {cliente.endereco && (
+                      <p className="text-sm text-muted-foreground mt-1">{cliente.endereco}</p>
+                    )}
                   </div>
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm">
