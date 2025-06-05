@@ -3,9 +3,11 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Edit, Trash, Heart } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { PacienteForm } from './PacienteForm';
 
 interface Paciente {
   id: string;
@@ -23,6 +25,7 @@ export function PacientesList() {
   const [pacientes, setPacientes] = useState<Paciente[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [dialogOpen, setDialogOpen] = useState(false);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -56,6 +59,11 @@ export function PacientesList() {
     }
   };
 
+  const handleSuccess = () => {
+    setDialogOpen(false);
+    fetchPacientes();
+  };
+
   const filteredPacientes = pacientes.filter(paciente =>
     paciente.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
     paciente.especie.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -78,10 +86,18 @@ export function PacientesList() {
             <Heart className="h-5 w-5 text-vet-primary" />
             Pacientes
           </div>
-          <Button className="vet-gradient text-white">
-            <Plus className="h-4 w-4 mr-2" />
-            Novo Paciente
-          </Button>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="vet-gradient text-white">
+                <Plus className="h-4 w-4 mr-2" />
+                Novo Paciente
+              </Button>
+            </DialogTrigger>
+            <PacienteForm 
+              onSuccess={handleSuccess}
+              onCancel={() => setDialogOpen(false)}
+            />
+          </Dialog>
         </CardTitle>
         <div className="mt-4">
           <Input

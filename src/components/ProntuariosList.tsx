@@ -4,25 +4,29 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash, Calendar } from "lucide-react";
+import { Plus, Edit, Trash, FileText } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { AgendamentoForm } from './AgendamentoForm';
+import { ProntuarioForm } from './ProntuarioForm';
 
-interface Agendamento {
+interface Prontuario {
   id: string;
-  data_hora: string;
-  tipo_servico: string;
-  status: string;
+  data_consulta: string;
+  motivo_consulta: string;
+  sintomas: string;
+  diagnostico: string;
+  tratamento: string;
+  medicamentos: string;
   observacoes: string;
+  peso_atual: number;
+  temperatura: number;
   paciente_nome: string;
   cliente_nome: string;
   created_at: string;
 }
 
-export function AgendamentosList() {
-  const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
+export function ProntuariosList() {
+  const [prontuarios, setProntuarios] = useState<Prontuario[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -30,31 +34,31 @@ export function AgendamentosList() {
 
   useEffect(() => {
     if (user) {
-      fetchAgendamentos();
+      fetchProntuarios();
     }
   }, [user]);
 
-  const fetchAgendamentos = async () => {
+  const fetchProntuarios = async () => {
     try {
       const { data, error } = await supabase
-        .from('agendamentos')
+        .from('prontuarios')
         .select(`
           *,
           pacientes!inner(nome, clientes!inner(nome))
         `)
-        .order('data_hora', { ascending: true });
+        .order('data_consulta', { ascending: false });
 
       if (error) throw error;
       
-      const agendamentosFormatted = data?.map(agendamento => ({
-        ...agendamento,
-        paciente_nome: agendamento.pacientes?.nome || 'Paciente não encontrado',
-        cliente_nome: agendamento.pacientes?.clientes?.nome || 'Cliente não encontrado'
+      const prontuariosFormatted = data?.map(prontuario => ({
+        ...prontuario,
+        paciente_nome: prontuario.pacientes?.nome || 'Paciente não encontrado',
+        cliente_nome: prontuario.pacientes?.clientes?.nome || 'Cliente não encontrado'
       })) || [];
       
-      setAgendamentos(agendamentosFormatted);
+      setProntuarios(prontuariosFormatted);
     } catch (error) {
-      console.error('Erro ao buscar agendamentos:', error);
+      console.error('Erro ao buscar prontuários:', error);
     } finally {
       setLoading(false);
     }
@@ -62,22 +66,7 @@ export function AgendamentosList() {
 
   const handleSuccess = () => {
     setDialogOpen(false);
-    fetchAgendamentos();
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'agendado':
-        return 'bg-blue-100 text-blue-800';
-      case 'confirmado':
-        return 'bg-green-100 text-green-800';
-      case 'cancelado':
-        return 'bg-red-100 text-red-800';
-      case 'concluido':
-        return 'bg-gray-100 text-gray-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
+    fetchProntuarios();
   };
 
   const formatDateTime = (dateTime: string) => {
@@ -85,10 +74,11 @@ export function AgendamentosList() {
     return date.toLocaleString('pt-BR');
   };
 
-  const filteredAgendamentos = agendamentos.filter(agendamento =>
-    agendamento.paciente_nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    agendamento.cliente_nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    agendamento.tipo_servico.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProntuarios = prontuarios.filter(prontuario =>
+    prontuario.paciente_nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    prontuario.cliente_nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    prontuario.motivo_consulta.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (prontuario.diagnostico && prontuario.diagnostico.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   if (loading) {
@@ -104,17 +94,17 @@ export function AgendamentosList() {
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-vet-primary" />
-            Agendamentos
+            <FileText className="h-5 w-5 text-vet-primary" />
+            Prontuários
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button className="vet-gradient text-white">
                 <Plus className="h-4 w-4 mr-2" />
-                Novo Agendamento
+                Novo Prontuário
               </Button>
             </DialogTrigger>
-            <AgendamentoForm 
+            <ProntuarioForm 
               onSuccess={handleSuccess}
               onCancel={() => setDialogOpen(false)}
             />
@@ -122,44 +112,45 @@ export function AgendamentosList() {
         </CardTitle>
         <div className="mt-4">
           <Input
-            placeholder="Buscar por paciente, cliente ou serviço..."
+            placeholder="Buscar por paciente, cliente, motivo ou diagnóstico..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </CardHeader>
       <CardContent>
-        {filteredAgendamentos.length === 0 ? (
+        {filteredProntuarios.length === 0 ? (
           <div className="text-center py-8">
-            <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold">Nenhum agendamento encontrado</h3>
-            <p className="text-muted-foreground">Adicione um novo agendamento para começar.</p>
+            <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold">Nenhum prontuário encontrado</h3>
+            <p className="text-muted-foreground">Adicione um novo prontuário para começar.</p>
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredAgendamentos.map((agendamento) => (
+            {filteredProntuarios.map((prontuario) => (
               <div
-                key={agendamento.id}
+                key={prontuario.id}
                 className="border rounded-lg p-4 hover:bg-muted/50 transition-colors"
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-semibold text-lg">{agendamento.tipo_servico}</h3>
-                      <Badge className={getStatusColor(agendamento.status)}>
-                        {agendamento.status}
-                      </Badge>
-                    </div>
+                    <h3 className="font-semibold text-lg">{prontuario.motivo_consulta}</h3>
                     <p className="text-muted-foreground">
-                      Paciente: {agendamento.paciente_nome} (Cliente: {agendamento.cliente_nome})
+                      Paciente: {prontuario.paciente_nome} (Cliente: {prontuario.cliente_nome})
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Data/Hora: {formatDateTime(agendamento.data_hora)}
+                      Data: {formatDateTime(prontuario.data_consulta)}
                     </p>
-                    {agendamento.observacoes && (
+                    {prontuario.diagnostico && (
                       <p className="text-sm text-muted-foreground mt-1">
-                        Obs: {agendamento.observacoes}
+                        Diagnóstico: {prontuario.diagnostico}
                       </p>
+                    )}
+                    {(prontuario.peso_atual || prontuario.temperatura) && (
+                      <div className="flex gap-4 text-sm text-muted-foreground mt-1">
+                        {prontuario.peso_atual && <span>Peso: {prontuario.peso_atual}kg</span>}
+                        {prontuario.temperatura && <span>Temp: {prontuario.temperatura}°C</span>}
+                      </div>
                     )}
                   </div>
                   <div className="flex gap-2">
