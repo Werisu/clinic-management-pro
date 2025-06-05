@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import Agendamentos from "./pages/Agendamentos";
 import Clientes from "./pages/Clientes";
 import Pacientes from "./pages/Pacientes";
+import Prontuarios from "./pages/Prontuarios";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
@@ -53,6 +54,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Pacientes />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/prontuarios" 
+              element={
+                <ProtectedRoute>
+                  <Prontuarios />
                 </ProtectedRoute>
               } 
             />
