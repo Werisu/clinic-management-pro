@@ -9,6 +9,133 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      agendamentos: {
+        Row: {
+          created_at: string
+          data_hora: string
+          id: string
+          observacoes: string | null
+          paciente_id: string
+          status: string
+          tipo_servico: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data_hora: string
+          id?: string
+          observacoes?: string | null
+          paciente_id: string
+          status?: string
+          tipo_servico: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data_hora?: string
+          id?: string
+          observacoes?: string | null
+          paciente_id?: string
+          status?: string
+          tipo_servico?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agendamentos_paciente_id_fkey"
+            columns: ["paciente_id"]
+            isOneToOne: false
+            referencedRelation: "pacientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clientes: {
+        Row: {
+          cpf: string
+          created_at: string
+          email: string
+          endereco: string | null
+          id: string
+          nome: string
+          telefone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cpf: string
+          created_at?: string
+          email: string
+          endereco?: string | null
+          id?: string
+          nome: string
+          telefone: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cpf?: string
+          created_at?: string
+          email?: string
+          endereco?: string | null
+          id?: string
+          nome?: string
+          telefone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pacientes: {
+        Row: {
+          cliente_id: string
+          created_at: string
+          especie: string
+          id: string
+          idade: number | null
+          nome: string
+          peso: number | null
+          raca: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cliente_id: string
+          created_at?: string
+          especie: string
+          id?: string
+          idade?: number | null
+          nome: string
+          peso?: number | null
+          raca?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cliente_id?: string
+          created_at?: string
+          especie?: string
+          id?: string
+          idade?: number | null
+          nome?: string
+          peso?: number | null
+          raca?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pacientes_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -35,6 +162,65 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      prontuarios: {
+        Row: {
+          created_at: string
+          data_consulta: string
+          diagnostico: string | null
+          id: string
+          medicamentos: string | null
+          motivo_consulta: string
+          observacoes: string | null
+          paciente_id: string
+          peso_atual: number | null
+          sintomas: string | null
+          temperatura: number | null
+          tratamento: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data_consulta?: string
+          diagnostico?: string | null
+          id?: string
+          medicamentos?: string | null
+          motivo_consulta: string
+          observacoes?: string | null
+          paciente_id: string
+          peso_atual?: number | null
+          sintomas?: string | null
+          temperatura?: number | null
+          tratamento?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data_consulta?: string
+          diagnostico?: string | null
+          id?: string
+          medicamentos?: string | null
+          motivo_consulta?: string
+          observacoes?: string | null
+          paciente_id?: string
+          peso_atual?: number | null
+          sintomas?: string | null
+          temperatura?: number | null
+          tratamento?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prontuarios_paciente_id_fkey"
+            columns: ["paciente_id"]
+            isOneToOne: false
+            referencedRelation: "pacientes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
