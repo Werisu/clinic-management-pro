@@ -14,7 +14,7 @@ import { ptBR } from 'date-fns/locale';
 
 interface Transacao {
   id: string;
-  tipo: 'receita' | 'despesa';
+  tipo: string;
   categoria: string;
   descricao: string;
   valor: number;
@@ -29,8 +29,8 @@ export function TransacoesList() {
   const [transacoes, setTransacoes] = useState<Transacao[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterTipo, setFilterTipo] = useState<string>('');
-  const [filterStatus, setFilterStatus] = useState<string>('');
+  const [filterTipo, setFilterTipo] = useState<string>('todos');
+  const [filterStatus, setFilterStatus] = useState<string>('todos');
   const [dialogOpen, setDialogOpen] = useState(false);
   const { user } = useAuth();
 
@@ -87,8 +87,8 @@ export function TransacoesList() {
   const filteredTransacoes = transacoes.filter(transacao => {
     const matchesSearch = transacao.descricao.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          transacao.categoria.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesTipo = filterTipo === '' || transacao.tipo === filterTipo;
-    const matchesStatus = filterStatus === '' || transacao.status === filterStatus;
+    const matchesTipo = filterTipo === 'todos' || transacao.tipo === filterTipo;
+    const matchesStatus = filterStatus === 'todos' || transacao.status === filterStatus;
     
     return matchesSearch && matchesTipo && matchesStatus;
   });
@@ -135,7 +135,7 @@ export function TransacoesList() {
               <SelectValue placeholder="Tipo" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todos</SelectItem>
+              <SelectItem value="todos">Todos</SelectItem>
               <SelectItem value="receita">Receita</SelectItem>
               <SelectItem value="despesa">Despesa</SelectItem>
             </SelectContent>
@@ -145,7 +145,7 @@ export function TransacoesList() {
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todos</SelectItem>
+              <SelectItem value="todos">Todos</SelectItem>
               <SelectItem value="pendente">Pendente</SelectItem>
               <SelectItem value="confirmado">Confirmado</SelectItem>
               <SelectItem value="cancelado">Cancelado</SelectItem>
