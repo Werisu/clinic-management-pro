@@ -116,6 +116,63 @@ export type Database = {
         }
         Relationships: []
       }
+      movimentacoes_estoque: {
+        Row: {
+          agendamento_id: string | null
+          created_at: string
+          id: string
+          motivo: string | null
+          observacoes: string | null
+          produto_id: string
+          quantidade: number
+          quantidade_anterior: number
+          quantidade_nova: number
+          tipo: string
+          user_id: string
+        }
+        Insert: {
+          agendamento_id?: string | null
+          created_at?: string
+          id?: string
+          motivo?: string | null
+          observacoes?: string | null
+          produto_id: string
+          quantidade: number
+          quantidade_anterior: number
+          quantidade_nova: number
+          tipo: string
+          user_id: string
+        }
+        Update: {
+          agendamento_id?: string | null
+          created_at?: string
+          id?: string
+          motivo?: string | null
+          observacoes?: string | null
+          produto_id?: string
+          quantidade?: number
+          quantidade_anterior?: number
+          quantidade_nova?: number
+          tipo?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "movimentacoes_estoque_agendamento_id_fkey"
+            columns: ["agendamento_id"]
+            isOneToOne: false
+            referencedRelation: "agendamentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimentacoes_estoque_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos_estoque"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pacientes: {
         Row: {
           cliente_id: string
@@ -162,6 +219,66 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      produtos_estoque: {
+        Row: {
+          ativo: boolean | null
+          categoria: string
+          codigo_barras: string | null
+          created_at: string
+          data_validade: string | null
+          descricao: string | null
+          fornecedor: string | null
+          id: string
+          lote: string | null
+          nome: string
+          preco_custo: number | null
+          preco_venda: number | null
+          quantidade_atual: number
+          quantidade_minima: number
+          unidade_medida: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ativo?: boolean | null
+          categoria: string
+          codigo_barras?: string | null
+          created_at?: string
+          data_validade?: string | null
+          descricao?: string | null
+          fornecedor?: string | null
+          id?: string
+          lote?: string | null
+          nome: string
+          preco_custo?: number | null
+          preco_venda?: number | null
+          quantidade_atual?: number
+          quantidade_minima?: number
+          unidade_medida?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ativo?: boolean | null
+          categoria?: string
+          codigo_barras?: string | null
+          created_at?: string
+          data_validade?: string | null
+          descricao?: string | null
+          fornecedor?: string | null
+          id?: string
+          lote?: string | null
+          nome?: string
+          preco_custo?: number | null
+          preco_venda?: number | null
+          quantidade_atual?: number
+          quantidade_minima?: number
+          unidade_medida?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {

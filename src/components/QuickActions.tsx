@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Calendar, Users, Heart, FileText } from "lucide-react";
@@ -27,10 +26,10 @@ const quickActions = [
     color: "bg-purple-500 hover:bg-purple-600",
   },
   {
-    title: "Novo Prontuário",
-    description: "Criar prontuário",
-    icon: FileText,
-    href: "/prontuarios/novo",
+    title: "Novo Produto",
+    description: "Adicionar ao estoque",
+    icon: Plus,
+    href: "/estoque",
     color: "bg-orange-500 hover:bg-orange-600",
   },
 ];
