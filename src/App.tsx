@@ -11,6 +11,7 @@ import Agendamentos from "./pages/Agendamentos";
 import Clientes from "./pages/Clientes";
 import Pacientes from "./pages/Pacientes";
 import Prontuarios from "./pages/Prontuarios";
+import Financeiro from "./pages/Financeiro";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
@@ -62,6 +63,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Prontuarios />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/financeiro" 
+              element={
+                <ProtectedRoute>
+                  <Financeiro />
                 </ProtectedRoute>
               } 
             />

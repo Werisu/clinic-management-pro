@@ -53,6 +53,33 @@ export type Database = {
           },
         ]
       }
+      categorias_financeiras: {
+        Row: {
+          cor: string | null
+          created_at: string
+          id: string
+          nome: string
+          tipo: string
+          user_id: string
+        }
+        Insert: {
+          cor?: string | null
+          created_at?: string
+          id?: string
+          nome: string
+          tipo: string
+          user_id: string
+        }
+        Update: {
+          cor?: string | null
+          created_at?: string
+          id?: string
+          nome?: string
+          tipo?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       clientes: {
         Row: {
           cpf: string
@@ -215,6 +242,72 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "prontuarios_paciente_id_fkey"
+            columns: ["paciente_id"]
+            isOneToOne: false
+            referencedRelation: "pacientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transacoes_financeiras: {
+        Row: {
+          agendamento_id: string | null
+          categoria: string
+          created_at: string
+          data_transacao: string
+          descricao: string
+          forma_pagamento: string | null
+          id: string
+          observacoes: string | null
+          paciente_id: string | null
+          status: string | null
+          tipo: string
+          updated_at: string
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          agendamento_id?: string | null
+          categoria: string
+          created_at?: string
+          data_transacao?: string
+          descricao: string
+          forma_pagamento?: string | null
+          id?: string
+          observacoes?: string | null
+          paciente_id?: string | null
+          status?: string | null
+          tipo: string
+          updated_at?: string
+          user_id: string
+          valor: number
+        }
+        Update: {
+          agendamento_id?: string | null
+          categoria?: string
+          created_at?: string
+          data_transacao?: string
+          descricao?: string
+          forma_pagamento?: string | null
+          id?: string
+          observacoes?: string | null
+          paciente_id?: string | null
+          status?: string | null
+          tipo?: string
+          updated_at?: string
+          user_id?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transacoes_financeiras_agendamento_id_fkey"
+            columns: ["agendamento_id"]
+            isOneToOne: false
+            referencedRelation: "agendamentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transacoes_financeiras_paciente_id_fkey"
             columns: ["paciente_id"]
             isOneToOne: false
             referencedRelation: "pacientes"
