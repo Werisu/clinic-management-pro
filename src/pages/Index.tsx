@@ -4,12 +4,72 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { DashboardStats } from "@/components/DashboardStats";
 import { RecentAppointments } from "@/components/RecentAppointments";
 import { QuickActions } from "@/components/QuickActions";
+import { FinanceiroOverview } from "@/components/FinanceiroOverview";
+import { EstoqueOverview } from "@/components/EstoqueOverview";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bell, Search } from "lucide-react";
+import { Bell, Search, AlertTriangle, Package, TrendingUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
+  const [alertas, setAlertas] = useState({
+    vacinasVencendo: 0,
+    estoquesBaixos: 0,
+    consultasPendentes: 0
+  });
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      fetchAlertas();
+    }
+  }, [user]);
+
+  const fetchAlertas = async () => {
+    try {
+      // Consultas pendentes de confirmação
+      const { data: consultasPendentes } = await supabase
+        .from('agendamentos')
+        .select('id')
+        .eq('user_id', user?.id)
+        .eq('status', 'agendado');
+
+      // Produtos com estoque baixo
+      const { data: produtosEstoqueBaixo } = await supabase
+        .from('produtos_estoque')
+        .select('id, nome, quantidade_atual, quantidade_minima')
+        .eq('user_id', user?.id)
+        .eq('ativo', true);
+
+      const estoquesBaixos = produtosEstoqueBaixo?.filter(
+        produto => produto.quantidade_atual <= produto.quantidade_minima
+      ).length || 0;
+
+      // Produtos vencendo em 30 dias
+      const trintaDias = new Date();
+      trintaDias.setDate(trintaDias.getDate() + 30);
+      
+      const { data: produtosVencendo } = await supabase
+        .from('produtos_estoque')
+        .select('id')
+        .eq('user_id', user?.id)
+        .eq('ativo', true)
+        .not('data_validade', 'is', null)
+        .lte('data_validade', trintaDias.toISOString().split('T')[0]);
+
+      setAlertas({
+        vacinasVencendo: produtosVencendo?.length || 0,
+        estoquesBaixos,
+        consultasPendentes: consultasPendentes?.length || 0
+      });
+    } catch (error) {
+      console.error('Erro ao buscar alertas:', error);
+    }
+  };
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
@@ -37,9 +97,11 @@ const Index = () => {
               </div>
               <Button variant="outline" size="icon" className="relative">
                 <Bell className="h-4 w-4" />
-                <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full text-xs flex items-center justify-center text-white">
-                  3
-                </span>
+                {(alertas.vacinasVencendo + alertas.estoquesBaixos + alertas.consultasPendentes) > 0 && (
+                  <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full text-xs flex items-center justify-center text-white">
+                    {alertas.vacinasVencendo + alertas.estoquesBaixos + alertas.consultasPendentes}
+                  </span>
+                )}
               </Button>
             </div>
           </header>
@@ -63,23 +125,35 @@ const Index = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-3">
-                      <div className="p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
-                        <p className="text-sm font-medium text-yellow-800">
-                          5 vacinas vencendo esta semana
-                        </p>
+                    {(alertas.vacinasVencendo + alertas.estoquesBaixos + alertas.consultasPendentes) === 0 ? (
+                      <div className="text-center py-4">
+                        <p className="text-muted-foreground">Nenhum alerta no momento</p>
                       </div>
-                      <div className="p-3 bg-red-50 border-l-4 border-red-400 rounded">
-                        <p className="text-sm font-medium text-red-800">
-                          Estoque baixo: Ração Premium (3 unidades)
-                        </p>
+                    ) : (
+                      <div className="space-y-3">
+                        {alertas.vacinasVencendo > 0 && (
+                          <div className="p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                            <p className="text-sm font-medium text-yellow-800">
+                              {alertas.vacinasVencendo} produtos vencendo em 30 dias
+                            </p>
+                          </div>
+                        )}
+                        {alertas.estoquesBaixos > 0 && (
+                          <div className="p-3 bg-red-50 border-l-4 border-red-400 rounded">
+                            <p className="text-sm font-medium text-red-800">
+                              {alertas.estoquesBaixos} produtos com estoque baixo
+                            </p>
+                          </div>
+                        )}
+                        {alertas.consultasPendentes > 0 && (
+                          <div className="p-3 bg-blue-50 border-l-4 border-blue-400 rounded">
+                            <p className="text-sm font-medium text-blue-800">
+                              {alertas.consultasPendentes} consultas pendentes de confirmação
+                            </p>
+                          </div>
+                        )}
                       </div>
-                      <div className="p-3 bg-blue-50 border-l-4 border-blue-400 rounded">
-                        <p className="text-sm font-medium text-blue-800">
-                          12 consultas pendentes de confirmação
-                        </p>
-                      </div>
-                    </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>
@@ -88,60 +162,10 @@ const Index = () => {
                 <QuickActions />
                 
                 {/* Financial Overview */}
-                <Card className="vet-card-shadow">
-                  <CardHeader>
-                    <CardTitle className="vet-text-gradient">
-                      Resumo Financeiro - Dezembro 2024
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Receita do Mês</span>
-                        <span className="font-bold text-green-600">R$ 45.690,00</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Despesas</span>
-                        <span className="font-bold text-red-600">R$ 18.240,00</span>
-                      </div>
-                      <div className="border-t pt-4">
-                        <div className="flex justify-between items-center">
-                          <span className="font-medium">Lucro Líquido</span>
-                          <span className="font-bold text-xl text-green-600">
-                            R$ 27.450,00
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <FinanceiroOverview />
 
-                {/* Quick Stats */}
-                <Card className="vet-card-shadow">
-                  <CardHeader>
-                    <CardTitle>Estatísticas Rápidas</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="text-center p-3 bg-blue-50 rounded-lg">
-                        <div className="text-2xl font-bold text-blue-600">18</div>
-                        <div className="text-sm text-muted-foreground">Cirurgias este mês</div>
-                      </div>
-                      <div className="text-center p-3 bg-green-50 rounded-lg">
-                        <div className="text-2xl font-bold text-green-600">124</div>
-                        <div className="text-sm text-muted-foreground">Vacinas aplicadas</div>
-                      </div>
-                      <div className="text-center p-3 bg-purple-50 rounded-lg">
-                        <div className="text-2xl font-bold text-purple-600">89%</div>
-                        <div className="text-sm text-muted-foreground">Taxa de ocupação</div>
-                      </div>
-                      <div className="text-center p-3 bg-orange-50 rounded-lg">
-                        <div className="text-2xl font-bold text-orange-600">4.8</div>
-                        <div className="text-sm text-muted-foreground">Avaliação média</div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                {/* Estoque Overview */}
+                <EstoqueOverview />
               </div>
             </div>
           </div>
